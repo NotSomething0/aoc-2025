@@ -1,8 +1,8 @@
-local READ_MODE = 'rb'
+local totalClicks = 0
+local dialLocation = 50
 
--- get all lines from a file, returns an empty 
--- list/table if the file does not exist
-function lines_from(file)
+-- https://stackoverflow.com/a/11204889
+local function lines_from(file)
   local lines = {}
   for line in io.lines(file) do
     lines[#lines + 1] = line
@@ -10,45 +10,23 @@ function lines_from(file)
   return lines
 end
 
-function mysplit(inputstr, sep)
-  if sep == nil then
-    sep = "%s"
-  end
-  local t = {}
-  for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-    table.insert(t, str)
-  end
-  return t
-end
+local inputData = {}
+local inputLines = lines_from('input.txt')
 
-local clicks = 0
-local dialLocation = 50
-
-print('The dial start by pointing at 50')
-
-
-local inputFileLines = lines_from('input.txt')
-
-local t = {}
-
--- print all line numbers and their contents
-for k,v in pairs(inputFileLines) do
+for _,v in pairs(inputLines) do
   local action = v:match('%a')
   local turns = tonumber(v:match('%d+')) or tonumber(v:match('%z'))
 
-  if not turns then
-    print('bad')
+  if turns then
+    table.insert(inputData, {
+      _action = action,
+      _turns = turns
+    })
   end
-
-  table.insert(t, {
-    _action = action,
-    _turns = turns
-  })
 end
 
-
-for _, data in ipairs(t) do
-  for idx = 1, data._turns do
+for _, data in ipairs(inputData) do
+  for _ = 1, data._turns do
     if data._action == "R" then
       local newLocation = dialLocation + 1
 
@@ -73,9 +51,9 @@ for _, data in ipairs(t) do
     end
 
     if dialLocation == 0 then
-      clicks = clicks + 1
+      totalClicks = totalClicks + 1
     end
   end
 end
 
-print(clicks, dialLocation)
+print(('Total clicks %d | Dial location after password: %d'):format(totalClicks, dialLocation))
